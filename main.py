@@ -28,12 +28,13 @@ with open('input.txt') as file:
 
 #-----------------------------#-----------------------------#
 
+  # Defining functions
+
 def construct_permutaions(scrambled_word_list):
   
     # Argument -> scrambled_word_list = list of scrambled words read in from input.txt
     # Func Descption:  uses itertools permutations method to create all permutations of each cryptogram
     #                  creates a list (permList) of permutations for each word, stores them in permMaster.              
-  
   for word in scrambled_word_list:
     permList = []
     permutes = permutations(word)
@@ -42,7 +43,7 @@ def construct_permutaions(scrambled_word_list):
       for item in perms:
         scram = scram + item
       permList.append(scram)
-    permMaster.append(permList)  
+    permMaster.append(permList) 
   return 
 
 
@@ -61,7 +62,7 @@ def findSolution(permutations,k,scrambled_input):
           return word + ' ' + scrambled_input
       except:
         x=1  
-    return ''
+
 
 def decode( scrambled_word_list ):
   
@@ -80,14 +81,17 @@ def decode( scrambled_word_list ):
     found_word = findSolution(permMaster,k,scrambled_word_list[k])
     k += 1
     results.append(found_word)
-    
   sorted_results = sorted(results)
+  
   for res in sorted_results:
     print(res)
   return
 
 
+#-----------------------------#-----------------------------#
 
+  # decode function call
+  
 decode( scrambled_word_list )
 
 
