@@ -18,6 +18,8 @@ cnt = 0
 scrambled_hash = []
 perms = []
 y = {}
+num_of_results = 0
+results = []
 
 #-----------------------------#-----------------------------#
 
@@ -56,20 +58,6 @@ with open('dictionary.txt') as file:
     
 #-----------------------------#-----------------------------#
 
-  # Defining functions
-
-def isRepeated(word_list):
-  candidates = {}
-  for word in word_list:
-    for letter in word:
-      if letter in candidates.keys():
-        candidates[letter].append([word_list.index(word),word.index(letter)])
-      else:
-        candidates[letter] = [[word_list.index(word),word.index(letter)]]
-      
-  return candidates
-
-candidates = isRepeated(scrambled_word_list)
 
 
 
@@ -89,18 +77,16 @@ def hashWord(word):
       out_going_hash.append(str(hash_val))
     else:
       out_going_hash.append(str(known_letters.index(letter) + 1))
+      
   return string.join(out_going_hash)
 
 
 def build_candidates():
 
-  
-
   for word in scrambled_word_list:
     scrambled_hash.append(hashWord(word))
 
   candidate_hash_dict = {}
-  candidate_hash_list = []
 
   for word in candidate_list_master:
     hashed_word = hashWord(word)
@@ -109,99 +95,136 @@ def build_candidates():
     else:
       candidate_hash_dict[hashed_word].append(word)
 
-  '''
-  for scram in scrambled_hash:
-    if scram in scrambled_hash:
-      print(candidate_hash_dict[scram])
-     ''' 
-  
   return candidate_hash_dict
 
 
-# a_list is the dictionary 
-
-# k is where in the diction
-
-
-
-
-
-
-
+def backtrack(master_list,a_list,k,scrambled_hash):
   
+  k = k+1
+  n_candidates = len(candidate_hash_dict[scrambled_hash[k]])
+  
+  for i in range(n_candidates): 
+    perm = [candidate_hash_dict[scrambled_hash[k]][i]]
+    a_list.append(perm)
+    if k < len(scrambled_hash)-1:
+      backtrack(master_list,perm,k,scrambled_hash)
+        
+  return a_list
+
+
+
+
 
 candidate_hash_dict = build_candidates()
 crypto_hash = hashWord(cryptogram)
 
-print(crypto_hash)
 
-def construct_candidates(a_list,k,crypto_hash,c,n_candidates1):
-  #print(crypto_hash[k])
-  #print(candidate_hash_dict[crypto_hash[k]])
-  
-    
+len_cryptogram = len(cryptogram)
 
-
-
-  
-  return
-
-def isSolution(a_list,k,crypto_hash):
-  
-
-  return
-
-def processSolution(a_list,k,crypto_hash):
-
-  return
-
-
-
-
-
-
-
-# pass in for in next
-              # for next 
-
-
-
-# define backtrack
-
-def backtrack(master_list,a_list,k,scrambled_hash):
-
-  
-  if (isSolution(a_list,k,scrambled_hash)):
-    processSolution(a_list,k,scrambled_hash)
-    
-  else:
-    k = k+1
-    
-    n_candidates = len(candidate_hash_dict[scrambled_hash[k]])
-    
-    for i in range(n_candidates): 
-    
-      perm = []
-      perm.append(candidate_hash_dict[scrambled_hash[k]][i])
-      a_list.append(perm)
-      #rint(candidate_hash_dict[scrambled_hash[k]][i])
-      #print(k)
-      '''
-        for j in range(len(candidate_hash_dict[scrambled_hash[k+1]])):
-          next_poss = candidate_hash_dict[scrambled_hash[k+1]][j]
-          print(new_poss, next_poss)
-          a_list.append([new_poss, next_poss])
-      '''  
-      
-      if k < len(scrambled_hash)-1:
-        backtrack(master_list,perm,k,scrambled_hash)
-        
-  return a_list
-
-      
-  
 p_rick = backtrack(perms,[],-1,scrambled_hash)
-print(p_rick[100])
 
-print(crypto_hash)
-print(perms)
+#print(p_rick[0])
+#print(p_rick[0][0])
+#print(p_rick[0][1][0])
+#print(p_rick[0][1][1][0])
+
+#for p in p_rick: # root node
+  
+  #for i in p[1:-1]: 
+
+    #for j in i[1:-1]:
+    
+      #str_2_hash = p[0] + ' ' + i[0] + ' ' + j[0]
+      #hashed_perm = hashWord(str_2_hash)
+    
+    #if hashed_perm[0:len_cryptogram] == crypto_hash[0:len_cryptogram]:
+      #print(str_2_hash)
+
+
+def print_results(num_of_results):
+  print(num_of_results)
+  print(results)
+  for res in results:
+    print(res[0])
+
+
+# 1 word
+def search_4_1(p_rick):
+  num_of_results = 0
+  for p in p_rick:
+      str_2_hash = p[0]
+      hashed_perm = hashWord(str_2_hash)
+      if hashed_perm[0:len_cryptogram] == crypto_hash[0:len_cryptogram]:
+        results.append([str_2_hash])
+        num_of_results += 1
+  return num_of_results    
+
+# 2 word
+def search_4_2(p_rick):
+  num_of_results = 0
+  for p in p_rick:
+    for i in p[1:-1]:
+      str_2_hash = p[0] + ' ' + i[0]
+      hashed_perm = hashWord(str_2_hash)
+      if hashed_perm[0:len_cryptogram] == crypto_hash[0:len_cryptogram]:
+        results.append([str_2_hash])
+        num_of_results += 1
+  return num_of_results    
+  
+# 3 word
+  
+def search_4_3(p_rick):
+  num_of_results = 0
+  for p in p_rick:
+    for i in p[1:-1]:
+      for j in i[1:-1]:  
+        str_2_hash = p[0] + ' ' + i[0] + ' ' + j[0]
+        #print(str_2_hash)
+        hashed_perm = hashWord(str_2_hash)
+        #print(hashed_perm)
+        if hashed_perm[0:len_cryptogram] == crypto_hash[0:len_cryptogram]:
+         # print(hashed_perm)
+          results.append([str_2_hash])
+          num_of_results += 1
+  return num_of_results 
+
+# 4 word
+def search_4_4(p_rick):
+  num_of_results = 0
+  for p in p_rick:
+    for i in p[1:-1]:
+      for j in i[1:-1]: 
+        
+        for k in j[1:-1]:  
+          str_2_hash = p[0] + ' ' + i[0] + ' ' + j[0]
+          #print(str_2_hash)
+          hashed_perm = hashWord(str_2_hash)
+          #print(hashed_perm)
+          if hashed_perm[0:len_cryptogram] == crypto_hash[0:len_cryptogram]:
+         # print(hashed_perm)
+            results.append([str_2_hash])
+            num_of_results += 1
+  return num_of_results 
+
+
+# 5 word
+# 5 word
+
+# 6 word
+
+# 7 word
+
+# 8 word
+      
+# 9 word
+
+# 10 word
+
+# 11 word
+
+# 12 word
+
+# 8 word
+
+res = search_4_4(p_rick)
+print_results(res)
