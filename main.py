@@ -6,15 +6,15 @@ from itertools import permutations
 
 dict = {}
 permMaster = []
-
-#-----------------------------#-----------------------------#
-
-  # open dictionary.txt and convert to python dictionary. This is to enable O(1) permutation lookup
-
-with open('dictionary.txt') as file:   
-  contents = file.read()
-  for i in contents.split('\n'):               
-    dict[i] = i
+word_lengths = []
+prune_lens = []
+prune_letters = []
+cryptogram = ''
+candidates2 = []
+next_candidates_count = 0
+counter = 0
+lists = []
+count = 0
 
 #-----------------------------#-----------------------------#
 
@@ -22,77 +22,89 @@ with open('dictionary.txt') as file:
 
 with open('input.txt') as file:   
   contents = file.read()
-  list_scrambled_words = contents.split('\n')
-  num_of_words = int(list_scrambled_words[0])
-  scrambled_word_list = list_scrambled_words[1:num_of_words+1]
+  cryptogram = contents
+  scrambled_word_list = contents.split(' ')
+  num_of_words = len(scrambled_word_list)
+  
+  for word in scrambled_word_list:
+    word_lengths.append(len(word))
+    if len(word) not in prune_lens:
+      prune_lens.append(len(word))
 
+  for letter in cryptogram:
+    if letter not in prune_letters:
+      prune_letters.append(letter)
+  
+
+#-----------------------------#-----------------------------#
+
+  # open dictionary.txt and convert to python dictionary. This is to enable O(1) permutation lookup
+  with open('dictionary.txt') as file: 
+    
+    candidate_list_master = []
+    contents = file.read()
+    for i in scrambled_word_list:
+      for j in contents.split('\n'): 
+        if len(i) == len(j):
+          if j not in candidate_list_master:
+            candidate_list_master.append(j)
+
+    
+    
 #-----------------------------#-----------------------------#
 
   # Defining functions
 
-def construct_permutaions(scrambled_word_list):
+def isRepeated(word_list):
+  candidates = {}
+  print(word_list)
+  for word in word_list:
+    for letter in word:
+      if letter in candidates.keys():
+        candidates[letter].append([word_list.index(word),word.index(letter)])
+      else:
+        candidates[letter] = [[word_list.index(word),word.index(letter)]]
+      
+  return candidates
+
+candidates = isRepeated(scrambled_word_list)
+
+
+def hashWord(word):
+  known_letters = []
+  hash_val = 0
+  out_going_hash = []
+  string = ''
   
-    # Argument -> scrambled_word_list = list of scrambled words read in from input.txt
-    # Func Descption:  uses itertools permutations method to create all permutations of each cryptogram
-    #                  creates a list (permList) of permutations for each word, stores them in permMaster.              
-  for word in scrambled_word_list:
-    permList = []
-    permutes = permutations(word)
-    for perms in permutes:
-      scram = ''
-      for item in perms:
-        scram = scram + item
-      permList.append(scram)
-    permMaster.append(permList) 
-  return 
-
-
-def findSolution(permutations,k,scrambled_input):
-  
-    # Argument -> permutations = list of all permutation for each word
-    #             k = index of permutations of the scrambled_input word
-    #             scrambled_input = scrambled word we're trying to find the dictionary word
-    # Func Descption: checks each permutation for a dictioney entry. Discounts the permutation given as
-    #                 the scrambled word. 
-  
-  for word in permutations[k]:
-    if (word != scrambled_input):
-      try:
-        if (dict[word]):
-          return word + ' ' + scrambled_input
-      except:
-        x=1  
-
-
-def decode( scrambled_word_list ):
-  
-    # Argument -> scrambled_word_list = list of scrambled words read in from input.txt
-    # Func Descption: gets permutations with 'construct_permutaions()' 
-                      #searches the dictionary.txt/dict{} to find a match with 'findSolution()'
-                      #creates a list of of sorted results with the built in python sorted 'method'
-                      #prints the sorted results
-  
-  results = []
-  k = 0
-  print(num_of_words)
-  construct_permutaions(scrambled_word_list)
-  
-  for word in range(num_of_words):
-    found_word = findSolution(permMaster,k,scrambled_word_list[k])
-    k += 1
-    results.append(found_word)
-  sorted_results = sorted(results)
-  
-  for res in sorted_results:
-    print(res)
-  return
-
-
-#-----------------------------#-----------------------------#
-
-  # decode function call
-  
-decode( scrambled_word_list )
+  for letter in word:
+    if letter not in known_letters:
+      known_letters.append(letter)
+      hash_val += 1
+      out_going_hash.append(str(hash_val))
+    else:
+      out_going_hash.append(str(known_letters.index(letter) + 1))
+  return string.join(out_going_hash)
 
 
 
+
+scrambled_hash = []
+
+for word in scrambled_word_list:
+  scrambled_hash.append(hashWord(word))
+
+candidate_hash_dict = {}
+candidate_hash_list = []
+
+
+for word in candidate_list_master:
+  hashed_word = hashWord(word)
+  if hashed_word not in candidate_hash_dict.keys():
+    candidate_hash_dict[hashed_word] = [word]
+  else:
+    candidate_hash_dict[hashed_word].append(word)
+
+
+for scram in scrambled_hash:
+  if scram in scrambled_hash:
+    print(candidate_hash_dict[scram])
